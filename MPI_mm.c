@@ -7,8 +7,7 @@
 int main(int argc, char** argv)
 {
     double **r;
-    double **result;
-    int i;
+        int i;
     int num_arg_matrices;
 
     if (argc != 4) 
@@ -57,11 +56,43 @@ int main(int argc, char** argv)
     }
 
 
-    //if debug, print all elements owned
+    //if debug, print all elements owned (must do arguments first)
+    double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk_size);
+    int x,y;
+    if(debug_perf == 0){
+        //double *Recv_chunk = (double *)my_malloc(sizeof(double) * chunk);
+        if(rank==0){
+                //print shit
+                printf("argument matrix 0\n");
+                for(x = 0; x < num_rows; x++)
+                {
+                    for(y = 0; y < matrix_dimension_size; y++)
+                        printf("%f ", row_matrix[x*matrix_dimension_size+y]);
+                    printf("\n");
+                }
+
+                for(i=1; i < num_processes; i++){
+                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    for(x = 0; x < num_rows; x++)
+                    {
+                        for(y = 0; y < matrix_dimension_size; y++)
+                            printf("%f ", recieve_chunk[x*matrix_dimension_size+y]);
+                        printf("\n");
+                    }
+                }
+        }
+        else{
+                MPI_Send(row_matrix, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+        }
+    }
+
+    
+    
+    
     //multiply
     int block_dim = matrix_dimension_size / num_processes;
     int matrix_id, block_id;
-    double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk_size);
+   // double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk_size);
     double *A = row_matrix;
     double *B = recieve_chunk;
     double *C = output_matrix;
@@ -97,17 +128,43 @@ int main(int argc, char** argv)
     }
     double * result = A;
     //if debug, print all elements owned
+    if(debug_perf == 0){
+        //double *Recv_chunk = (double *)my_malloc(sizeof(double) * chunk);
+        if(rank==0){
+                //print shit
+                printf("Output Matrix \n");
+                for(x = 0; x < num_rows; x++)
+                {
+                    for(y = 0; y < matrix_dimension_size; y++)
+                        printf("%f ", result[x*matrix_dimension_size+y]);
+                    printf("\n");
+                }
+
+                for(i=1; i < num_processes; i++){
+                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    for(x = 0; x < num_rows; x++)
+                    {
+                        for(y = 0; y < matrix_dimension_size; y++)
+                            printf("%f ", recieve_chunk[x*matrix_dimension_size+y]);
+                        printf("\n");
+                    }
+                }
+        }
+        else{
+                MPI_Send(result, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+        }
+    }
     //free columns
     //sum all
     double sum = 0;
-    int i;
+    //int i;
     for(i = 0; i < chunk_size; i++)
         sum += result[i];
     //collect sums and print?
     if(rank == 0)
     {
-        double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes)
-        MPI_Gather(&sum, 1, MPI_DOUBLE, &sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes);
+        MPI_Gather(&sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         for (int i = 1; i < num_processes; i++)
             sum += sub_sums[i];
         printf("%f\n", sum);

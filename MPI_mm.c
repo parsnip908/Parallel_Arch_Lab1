@@ -58,11 +58,44 @@ int main(int argc, char** argv)
 
     //if debug, print all elements owned
     //multiply
+    int block_dim = matrix_dimension_size / num_processes;
+    int matrix_id, block_id;
+    double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk);
+    double *A = row_matrix;
+    double *B = recieve_chunk;
+    double *C = output_matrix;
+    for(matrix_id = 0; matrix_id < num_arg_matrices-1; matrix_id++)
+    {
+        for(block_id = 0; block_id < num_processes; block_id++)
+        {
         //if rank matches, send owned column
         //recieve column B
+            if(rank == block_id)
+                B = column_matrices[matrix_id];
+            else
+                B = recieve_chunk;
+            MPI_Bcast(B, chunk, MPI_DOUBLE, block_id, MPI_COMM_WORLD);
         //compute
+            int i, j, k;
+            for(i = 0; i < block_dim; i++)
+            {
+                for(j = 0; j < block_dim; j++)
+                {
+                    double * r = &C[i*matrix_dimension_size + block_id*block_dim + j]
+                    *r = 0;
+                    for(k = 0; k < matrix_dimension_size; k++)
+                    {
+                        *r += A[i*matrix_dimension_size + k] * B[j*matrix_dimension_size + k];
+                    }
+                }
+            }
+        }
         //if matrix complete, increment to next matrix
+        double* intermediate = A;
+        A = C;
+        C = intermediate;
         //loop
+    }
     //if debug, print all elements owned
     //sum all
     //collect sums and print?

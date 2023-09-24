@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "gen_matrix.h"
 #include "my_malloc.h"
 
@@ -79,7 +80,7 @@ int main(int argc, char** argv)
             {
                 for(j = 0; j < block_dim; j++)
                 {
-                    double * r = &C[i*matrix_dimension_size + block_id*block_dim + j]
+                    double * r = &C[i*matrix_dimension_size + block_id*block_dim + j];
                     *r = 0;
                     for(k = 0; k < matrix_dimension_size; k++)
                     {
@@ -100,7 +101,7 @@ int main(int argc, char** argv)
     //free
     //done
 
-    printf("world rank/size: %d/%d \n", rank);
+    printf("world rank/size: %d/%d \n", rank,num_processes);
 
     MPI_Finalize();
     return 0;

@@ -21,7 +21,7 @@
 #SBATCH -e MPI_mm.e%j       # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
 #SBATCH -N 2               # Total # of nodes
-#SBATCH -n 256              # Total # of mpi tasks
+#SBATCH -n 4              # Total # of mpi tasks
 #SBATCH -t 00:30:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job
 #SBATCH --mail-user=username@tacc.utexas.edu
@@ -29,4 +29,4 @@
 # Any other commands must follow all #SBATCH directives...
 
 # Launch MPI code...
-ibrun ./mpi_mm        # Use ibrun instead of mpirun or mpiexec
+ibrun ./MPI_mm.x 0 0 8        # Use ibrun instead of mpirun or mpiexec

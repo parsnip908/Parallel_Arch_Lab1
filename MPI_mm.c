@@ -95,10 +95,27 @@ int main(int argc, char** argv)
         C = intermediate;
         //loop
     }
+    double * result = A;
     //if debug, print all elements owned
+    //free columns
     //sum all
+    double sum = 0;
+    int i;
+    for(i = 0; i < chunk_size; i++)
+        sum += result[i];
     //collect sums and print?
-    //free
+    if(rank == 0)
+    {
+        double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes)
+        MPI_Gather(&sum, 1, MPI_DOUBLE, &sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        for (int i = 1; i < num_processes; i++)
+            sum += sub_sums[i];
+        printf("%f\n", sum);
+    }
+    else
+        MPI_Gather(&sum, 1, MPI_DOUBLE, NULL, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    //free row and output matrix
     //done
 
     printf("world rank/size: %d/%d \n", rank,num_processes);

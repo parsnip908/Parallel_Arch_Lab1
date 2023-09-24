@@ -29,10 +29,10 @@ int main(int argc, char** argv)
     MPI_Comm_size(MPI_COMM_WORLD, &num_processes);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     //alloc space
-    int chunk = (matrix_dimension_size/num_processes)*matrix_dimension_size;
-    row_matrix = (double *)my_malloc(sizeof(double) * chunk);
+    int chunk_size = (matrix_dimension_size/num_processes)*matrix_dimension_size;
+    row_matrix = (double *)my_malloc(sizeof(double) * chunk_size);
     column_matrices = (double **)my_malloc(sizeof(double *) * (num_arg_matrices-1));
-    output_matrix = (double *)my_malloc(sizeof(double) * chunk);
+    output_matrix = (double *)my_malloc(sizeof(double) * chunk_size);
     //gen matricies
     
     //Generating matrix for rows owned by this rank
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
     int x_start = rank * num_columns;
     int x_end = (x_start + num_columns) - 1;
     for(i=0; i < num_arg_matrices-1; i++){
-        column_matrices[i] = (double *)my_malloc(sizeof(double) * chunk);
+        column_matrices[i] = (double *)my_malloc(sizeof(double) * chunk_size);
         if (gen_sub_matrix(rank, test_set, i+1, column_matrices[i], x_start, x_end, 1, 0, matrix_dimension_size - 1, 1, 1) == NULL) {
                 printf("inconsistency in gen_sub_matrix\n");
                 exit(1);
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
     //multiply
     int block_dim = matrix_dimension_size / num_processes;
     int matrix_id, block_id;
-    double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk);
+    double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk_size);
     double *A = row_matrix;
     double *B = recieve_chunk;
     double *C = output_matrix;
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
             //else recieve column B
             if(rank == block_id) B = column_matrices[matrix_id];
             else B = recieve_chunk;
-            MPI_Bcast(B, chunk, MPI_DOUBLE, block_id, MPI_COMM_WORLD);
+            MPI_Bcast(B, chunk_size, MPI_DOUBLE, block_id, MPI_COMM_WORLD);
             //compute
             int i, j, k;
             for(i = 0; i < block_dim; i++)

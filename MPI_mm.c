@@ -68,14 +68,12 @@ int main(int argc, char** argv)
     {
         for(block_id = 0; block_id < num_processes; block_id++)
         {
-        //if rank matches, send owned column
-        //recieve column B
-            if(rank == block_id)
-                B = column_matrices[matrix_id];
-            else
-                B = recieve_chunk;
+            //if rank matches, send owned column
+            //else recieve column B
+            if(rank == block_id) B = column_matrices[matrix_id];
+            else B = recieve_chunk;
             MPI_Bcast(B, chunk, MPI_DOUBLE, block_id, MPI_COMM_WORLD);
-        //compute
+            //compute
             int i, j, k;
             for(i = 0; i < block_dim; i++)
             {

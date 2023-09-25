@@ -163,13 +163,12 @@ int main(int argc, char** argv)
         //loop
     }
     double * result = A;
-    //if debug, print all elements owned
+    //if debug, print result
     if(debug_perf == 0)
     {
         if(rank==0)
         {
-            //print shit
-            printf("Output Matrix \n");
+            printf("result matrix \n");
             print_chunk(result, matrix_dimension_size, num_rows);
 
             for(i=1; i < num_processes; i++)
@@ -204,7 +203,7 @@ int main(int argc, char** argv)
     //free
     //done
 
-    printf("world rank/size: %d/%d \n", rank,num_processes);
+    // printf("world rank/size: %d/%d \n", rank,num_processes);
 
     MPI_Finalize();
     return 0;

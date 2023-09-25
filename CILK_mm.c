@@ -25,7 +25,7 @@ void multiply_block(double* A, double* B, double* C, int block_x, int block_y, i
 
 }
 
-void print_matrix(double* matrix_array, int matrix_dim)
+void print_matrix_row_major(double* matrix_array, int matrix_dim)
 {
     int x, y;
     for (y = 0; y < matrix_dim; y++) {
@@ -37,6 +37,17 @@ void print_matrix(double* matrix_array, int matrix_dim)
     printf("\n");
 }
 
+void print_matrix_column_major(double* matrix_array, int matrix_dim)
+{
+    int x, y;
+    for (y = 0; y < matrix_dim; y++) {
+        for (x = 0; x < matrix_dim; x++) {
+            printf("%f ", matrix_array[x * matrix_dim + y]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 int main(int argc, char** argv, char** envp)
 {
@@ -89,12 +100,15 @@ int main(int argc, char** argv, char** envp)
     //print everything
     if(debug_perf == 0)
     {
-        for(j=0; j < num_arg_matrices; j++)
+        printf("argument matrix %d \n", j);
+        print_matrix_row_major(&arg_matrices[j*matrix_size], matrix_dimension_size);
+        for(j=1; j < num_arg_matrices; j++)
         {
-                printf("argument matrix %d \n", j);
-                print_matrix(&arg_matrices[j*matrix_size], matrix_dimension_size);
+            printf("argument matrix %d \n", j);
+            print_matrix_column_major(&arg_matrices[j*matrix_size], matrix_dimension_size);
         }
     }
+
     //multiply
     int matrix_id, block_x, block_y;
     block_dim = matrix_dimension_size/num_processes;
@@ -123,6 +137,18 @@ int main(int argc, char** argv, char** envp)
     double * result = A;
 
     //print result
+    if(debug_perf == 0)
+    {
+        printf("result matrix %d \n", j);
+        print_matrix(result, matrix_dimension_size);
+    }
+    else
+    {
+        double sum = 0;
+        for (int i = 0; i < matrix_dimension_size*matrix_dimension_size; i++)
+            sum += result[i];
+        printf("%f\n", sum);
+    }
 
     return 0;
 }

@@ -16,8 +16,8 @@
 #----------------------------------------------------
 
 #SBATCH -J CILK_mm           # Job name
-#SBATCH -o CILK_mm.o%j       # Name of stdout output file
-#SBATCH -e CILK_mm.e%j       # Name of stderr error file
+#SBATCH -o test_mm.o%j       # Name of stdout output file
+#SBATCH -e test_mm.e%j       # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
 #SBATCH -N 1               # Total # of nodes
 #SBATCH -n 128              # Total # of mpi tasks
@@ -26,8 +26,7 @@
 #SBATCH --mail-user=username@tacc.utexas.edu
 
 # Any other commands must follow all #SBATCH directives...
-# /work/08382/mengtian/ls6/cilk/bin/clang -fopencilk -O3 -fno-tree-vectorize -mno-avx -mno-avx2 -mno-mmx -mno-fma -mno-sse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 fib.c -o fib
 
 # Launch CILK code...
-export CILK_NWORKERS=4
-./a.out 0 0 12
+export CILK_NWORKERS=10
+./test_mm 0 0 100

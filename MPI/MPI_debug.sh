@@ -17,12 +17,12 @@
 #
 #----------------------------------------------------
 
-#SBATCH -J test_mm           # Job name
+#SBATCH -J MPI_mm           # Job name
 #SBATCH -o test_mm.o%j       # Name of stdout output file
 #SBATCH -e test_mm.e%j       # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
-#SBATCH -N 2               # Total # of nodes
-#SBATCH -n 4              # Total # of mpi tasks
+#SBATCH -N 1               # Total # of nodes
+#SBATCH -n 10             # Total # of mpi tasks
 #SBATCH -t 00:30:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job
 #SBATCH --mail-user=username@tacc.utexas.edu
@@ -30,4 +30,4 @@
 # Any other commands must follow all #SBATCH directives...
 
 # Launch MPI code...
-ibrun ./test_mm 0 0 8        # Use ibrun instead of mpirun or mpiexec
+ibrun ./test_mm 0 0 100        # Use ibrun instead of mpirun or mpiexec

@@ -57,7 +57,7 @@ int main(int argc, char** argv, char** envp)
         printf("CILK_NWORKERS not found\n");
         exit(1);
     }
-    printf("CILK_NWORKERS = %s\n\n",nworkers);
+    // printf("CILK_NWORKERS = %s\n\n",nworkers);
     int num_processes = atoi(nworkers);
 
     int i, j, k;

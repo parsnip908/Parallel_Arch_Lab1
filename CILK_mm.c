@@ -148,7 +148,6 @@ int main(int argc, char** argv, char** envp)
         printf("%f\n", sum);
     }
 
-    // print_alloc_stats();
     my_free(arg_matrices);
     my_free(output_matrix);
     return 0;

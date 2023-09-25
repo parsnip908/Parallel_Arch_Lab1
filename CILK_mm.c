@@ -72,7 +72,6 @@ int main(int argc, char** argv, char** envp)
     int test_set = atoi(argv[2]);
     matrix_dimension_size = atoi(argv[3]);
     num_arg_matrices = init_gen_sub_matrix(test_set);
-    // matrix_dim = matrix_dimension_size;
 
     //alloc space for all arg matrices
     int matrix_size = matrix_dimension_size * matrix_dimension_size;
@@ -89,7 +88,6 @@ int main(int argc, char** argv, char** envp)
     }
     for(i=1; i < num_arg_matrices; i++)
     {
-        // arg_matrices[i] = (double *)my_malloc(sizeof(double) * matrix_dimension_size * matrix_dimension_size);
         if (gen_sub_matrix(0, test_set, i, &arg_matrices[i*matrix_size], 0, matrix_dimension_size-1, 1, 0, matrix_dimension_size - 1, 1, 0) == NULL) 
         {
             printf("inconsistency in gen_sub_matrix\n");
@@ -100,7 +98,7 @@ int main(int argc, char** argv, char** envp)
     //print everything
     if(debug_perf == 0)
     {
-        printf("argument matrix %d \n", j);
+        printf("argument matrix 0\n");
         print_matrix_row_major(&arg_matrices[j*matrix_size], matrix_dimension_size);
         for(j=1; j < num_arg_matrices; j++)
         {
@@ -140,7 +138,7 @@ int main(int argc, char** argv, char** envp)
     if(debug_perf == 0)
     {
         printf("result matrix %d \n", j);
-        print_matrix(result, matrix_dimension_size);
+        print_matrix_row_major(result, matrix_dimension_size);
     }
     else
     {

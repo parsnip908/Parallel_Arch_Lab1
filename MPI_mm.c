@@ -18,7 +18,7 @@ void print_chunk(double* chunk, int matrix_dim, int num_rows)
 int main(int argc, char** argv)
 {
     double **r;
-    int i, j;
+    int i, j, k;
     int num_arg_matrices;
 
     if (argc != 4) 
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
                 print_chunk(column_matrices[i-1], matrix_dimension_size, num_rows);
                 for(j=1; j < num_processes; j++)
                 {
-                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, j, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, j, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
                 }
             }
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
         {
             MPI_Send(row_matrix, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
             for(i=1; i < num_arg_matrices; i++)
-                MPI_Send(column_matrices[i], chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+                MPI_Send(column_matrices[i], chunk_size, MPI_DOUBLE, 0, i, MPI_COMM_WORLD);
         }
     }
 
@@ -146,7 +146,6 @@ int main(int argc, char** argv)
     //if debug, print all elements owned
     if(debug_perf == 0)
     {
-        //double *Recv_chunk = (double *)my_malloc(sizeof(double) * chunk);
         if(rank==0)
         {
             //print shit
@@ -173,25 +172,25 @@ int main(int argc, char** argv)
             MPI_Send(result, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
         }
     }
-    //free columns
     //sum all
-    double sum = 0;
-    //int i;
-    for(i = 0; i < chunk_size; i++)
-        sum += result[i];
-    //collect sums and print?
-    if(rank == 0)
+    if(debug_perf == 1)
     {
-        double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes);
-        MPI_Gather(&sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        for (int i = 1; i < num_processes; i++)
-            sum += sub_sums[i];
-        printf("%f\n", sum);
+        double sum = 0;
+        for(i = 0; i < chunk_size; i++)
+            sum += result[i];
+        if(rank == 0)
+        {
+            double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes);
+            MPI_Gather(&sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            for (int i = 1; i < num_processes; i++)
+                sum += sub_sums[i];
+            printf("%f\n", sum);
+        }
+        else
+            MPI_Gather(&sum, 1, MPI_DOUBLE, NULL, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     }
-    else
-        MPI_Gather(&sum, 1, MPI_DOUBLE, NULL, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    //free row and output matrix
+    //free
     //done
 
     printf("world rank/size: %d/%d \n", rank,num_processes);

@@ -44,6 +44,4 @@ $(MPIOBJDIR):
 	mkdir -p $(MPIOBJDIR)
 
 clean:
-	rm $(MPIOBJDIR)*
-	rm $(OBJDIR)*
-	rm *.x
+	rm -f $(MPIOBJDIR)* $(OBJDIR)* *.x

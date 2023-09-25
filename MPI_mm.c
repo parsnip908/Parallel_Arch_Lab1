@@ -70,7 +70,8 @@ int main(int argc, char** argv)
     //if debug, print all elements owned (must do arguments first)
     double *recieve_chunk = (double *)my_malloc(sizeof(double) * chunk_size);
     int x,y;
-    if(debug_perf == 0){
+    if(debug_perf == 0)
+    {
         //double *Recv_chunk = (double *)my_malloc(sizeof(double) * chunk);
         if(rank==0)
         {
@@ -82,23 +83,42 @@ int main(int argc, char** argv)
                 MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
             }
+            printf("\n");
 
             for(i=1; i < num_arg_matrices; i++)
             {
-                printf("argument matrix %d (transpose)\n", i);
-                print_chunk(column_matrices[i-1], matrix_dimension_size, num_rows);
-                for(j=1; j < num_processes; j++)
+                printf("argument matrix %d\n", i);
+                for(j = 0; j < matrix_dimension_size; j++)
                 {
-                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, j, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
+                    MPI_Gather(column_matrices[0], num_columns, MPI_DOUBLE, recieve_chunk, num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+                    for(k = 0; k < num_columns; k++)
+                        recieve_chunk[k] = column_matrices[i-1][k*matrix_dimension_size+j];
+                    for(k = 0; k < matrix_dimension_size; k++)
+                        printf("%f ", recieve_chunk[k]);
+                    printf("\n");
                 }
+                // print_chunk(column_matrices[i-1], matrix_dimension_size, num_rows);
+                // for(j=1; j < num_processes; j++)
+                // {
+                //     MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, j, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                //     print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
+                // }
+                printf("\n");
             }
         }
         else
         {
             MPI_Send(row_matrix, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
             for(i=1; i < num_arg_matrices; i++)
-                MPI_Send(column_matrices[i], chunk_size, MPI_DOUBLE, 0, i, MPI_COMM_WORLD);
+            {
+                for(j = 0; j < matrix_dimension_size; j++)
+                {
+                    for(k = 0; k < num_columns; k++)
+                        recieve_chunk[k] = column_matrices[i-1][k*matrix_dimension_size+j];
+                    MPI_Gather(recieve_chunk, num_columns, MPI_DOUBLE, NULL, 0, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+                }
+                // MPI_Send(column_matrices[i-1], chunk_size, MPI_DOUBLE, 0, i, MPI_COMM_WORLD);
+            }
         }
     }
 
@@ -150,30 +170,21 @@ int main(int argc, char** argv)
         {
             //print shit
             printf("Output Matrix \n");
-            for(x = 0; x < num_rows; x++)
-            {
-                for(y = 0; y < matrix_dimension_size; y++)
-                    printf("%f ", result[x*matrix_dimension_size+y]);
-                printf("\n");
-            }
+            print_chunk(result, matrix_dimension_size, num_rows);
 
             for(i=1; i < num_processes; i++)
             {
                 MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                for(x = 0; x < num_rows; x++)
-                {
-                    for(y = 0; y < matrix_dimension_size; y++)
-                        printf("%f ", recieve_chunk[x*matrix_dimension_size+y]);
-                    printf("\n");
-                }
+                print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
             }
         }
-        else{
+        else
+        {
             MPI_Send(result, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
         }
     }
     //sum all
-    if(debug_perf == 1)
+    else
     {
         double sum = 0;
         for(i = 0; i < chunk_size; i++)

@@ -4,10 +4,21 @@
 #include "gen_matrix.h"
 #include "my_malloc.h"
 
+void print_chunk(double* chunk, int matrix_dim, int num_rows)
+{
+    int x, y;
+    for(x = 0; x < num_rows; x++)
+    {
+        for(y = 0; y < matrix_dim; y++)
+            printf("%f ", row_matrix[x*matrix_dim+y]);
+        printf("\n");
+    }
+}
+
 int main(int argc, char** argv)
 {
     double **r;
-        int i;
+    int i;
     int num_arg_matrices;
 
     if (argc != 4) 
@@ -61,28 +72,33 @@ int main(int argc, char** argv)
     int x,y;
     if(debug_perf == 0){
         //double *Recv_chunk = (double *)my_malloc(sizeof(double) * chunk);
-        if(rank==0){
-                //print shit
-                printf("argument matrix 0\n");
-                for(x = 0; x < num_rows; x++)
-                {
-                    for(y = 0; y < matrix_dimension_size; y++)
-                        printf("%f ", row_matrix[x*matrix_dimension_size+y]);
-                    printf("\n");
-                }
+        if(rank==0)
+        {
+            //print shit
+            printf("argument matrix 0\n");
+            print_chunk(row_matrix, matrix_dimension_size, num_rows);
+            for(i=1; i < num_processes; i++)
+            {
+                MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
+            }
 
-                for(i=1; i < num_processes; i++){
-                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    for(x = 0; x < num_rows; x++)
-                    {
-                        for(y = 0; y < matrix_dimension_size; y++)
-                            printf("%f ", recieve_chunk[x*matrix_dimension_size+y]);
-                        printf("\n");
-                    }
+            for(i=1; i < num_arg_matrices; i++)
+            {
+                printf("argument matrix %d (transpose)\n", i);
+                print_chunk(column_matrices[i-1], matrix_dimension_size, num_rows);
+                for(j=1; j < num_processes; j++)
+                {
+                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, j, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    print_chunk(recieve_chunk, matrix_dimension_size, num_rows);
                 }
+            }
         }
-        else{
-                MPI_Send(row_matrix, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+        else
+        {
+            MPI_Send(row_matrix, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+            for(i=1; i < num_arg_matrices; i++)
+                MPI_Send(column_matrices[i], chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
         }
     }
 
@@ -128,30 +144,33 @@ int main(int argc, char** argv)
     }
     double * result = A;
     //if debug, print all elements owned
-    if(debug_perf == 0){
+    if(debug_perf == 0)
+    {
         //double *Recv_chunk = (double *)my_malloc(sizeof(double) * chunk);
-        if(rank==0){
-                //print shit
-                printf("Output Matrix \n");
+        if(rank==0)
+        {
+            //print shit
+            printf("Output Matrix \n");
+            for(x = 0; x < num_rows; x++)
+            {
+                for(y = 0; y < matrix_dimension_size; y++)
+                    printf("%f ", result[x*matrix_dimension_size+y]);
+                printf("\n");
+            }
+
+            for(i=1; i < num_processes; i++)
+            {
+                MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 for(x = 0; x < num_rows; x++)
                 {
                     for(y = 0; y < matrix_dimension_size; y++)
-                        printf("%f ", result[x*matrix_dimension_size+y]);
+                        printf("%f ", recieve_chunk[x*matrix_dimension_size+y]);
                     printf("\n");
                 }
-
-                for(i=1; i < num_processes; i++){
-                    MPI_Recv(recieve_chunk, chunk_size, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    for(x = 0; x < num_rows; x++)
-                    {
-                        for(y = 0; y < matrix_dimension_size; y++)
-                            printf("%f ", recieve_chunk[x*matrix_dimension_size+y]);
-                        printf("\n");
-                    }
-                }
+            }
         }
         else{
-                MPI_Send(result, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+            MPI_Send(result, chunk_size, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
         }
     }
     //free columns

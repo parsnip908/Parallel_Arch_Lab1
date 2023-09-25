@@ -1,3 +1,4 @@
+#!/bin/bash
 # Notes:
 #
 #   -- Launch this script by executing
@@ -28,4 +29,5 @@
 /work/08382/mengtian/ls6/cilk/bin/clang -fopencilk -O3 -fno-tree-vectorize -mno-avx -mno-avx2 -mno-mmx -mno-fma -mno-sse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 fib.c -o fib
 
 # Launch CILK code...
+export CILK_NWORKERS=4
 ./fib 40

@@ -208,6 +208,15 @@ int main(int argc, char** argv)
     }
 
     //free
+    // if(rank ==0) printf("max allowed allocation: %d\n", matrix_dimension_size * matrix_dimension_size * (num_arg_matrices+3) / num_processes);
+    // print_alloc_stats();
+    my_free(row_matrix);
+    my_free(output_matrix);
+    my_free(recieve_chunk);
+    for(i=0; i < num_arg_matrices-1; i++)
+        my_free(column_matrices[i]);
+    my_free(column_matrices);
+    // print_alloc_stats();
     //done
 
     // printf("world rank/size: %d/%d \n", rank,num_processes);

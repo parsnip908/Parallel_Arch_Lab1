@@ -1,3 +1,4 @@
+#!/bin/bash
 # Last revised: October 22, 2021
 #
 # Notes:

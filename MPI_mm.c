@@ -10,7 +10,7 @@ void print_chunk(double* chunk, int matrix_dim, int num_rows)
     for(x = 0; x < num_rows; x++)
     {
         for(y = 0; y < matrix_dim; y++)
-            printf("%f ", row_matrix[x*matrix_dim+y]);
+            printf("%f ", chunk[x*matrix_dim+y]);
         printf("\n");
     }
 }
@@ -18,7 +18,7 @@ void print_chunk(double* chunk, int matrix_dim, int num_rows)
 int main(int argc, char** argv)
 {
     double **r;
-    int i;
+    int i, j;
     int num_arg_matrices;
 
     if (argc != 4) 
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     int x_end = (x_start + num_columns) - 1;
     for(i=0; i < num_arg_matrices-1; i++){
         column_matrices[i] = (double *)my_malloc(sizeof(double) * chunk_size);
-        if (gen_sub_matrix(rank, test_set, i+1, column_matrices[i], x_start, x_end, 1, 0, matrix_dimension_size - 1, 1, 1) == NULL) {
+        if (gen_sub_matrix(rank, test_set, i+1, column_matrices[i], x_start, x_end, 1, 0, matrix_dimension_size - 1, 1, 0) == NULL) {
                 printf("inconsistency in gen_sub_matrix\n");
                 exit(1);
         }

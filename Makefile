@@ -13,23 +13,23 @@ OBJ= gen_matrix.o my_malloc.o
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 MPIOBJS = $(addprefix $(MPIOBJDIR), $(OBJ))
 
-MPI_mm.x: $(MPIOBJDIR) $(MPIOBJS) ./mpi_obj/MPI_mm.o
-	$(MPICC) $(MPIFLAGS) $(MPIOBJS) ./mpi_obj/MPI_mm.o -o MPI_mm.x
+test_mm: $(MPIOBJDIR) $(MPIOBJS) ./mpi_obj/test_mm.o
+	$(MPICC) $(MPIFLAGS) $(MPIOBJS) ./mpi_obj/test_mm.o -o test_mm
 
-test_mm.x: $(OBJDIR) $(OBJS) ./obj/test_mm.o
-	$(CC) $(CFLAGS) $(OBJS) ./obj/test_mm.o -o test_mm.x
+original_test_mm: $(OBJDIR) $(OBJS) ./obj/original_test_mm.o
+	$(CC) $(CFLAGS) $(OBJS) ./obj/original_test_mm.o -o original_test_mm
 
-both: MPI_mm.x test_mm.x
+both: test_mm original_test_mm
 
-run_mpi: MPI_mm.x
+run_mpi: test_mm
 	rm -f MPI_mm.o* MPI_mm.e*
 	sbatch MPI_script.sh
 
-run_debug: test_mm.x
-	./test_mm.x 0 0 100
+run_debug: original_test_mm
+	./original_test_mm 0 0 100
 
-run_performance: test_mm.x
-	./test_mm.x 1 0 100
+run_performance: original_test_mm
+	./original_test_mm 1 0 100
 
 $(OBJDIR)%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

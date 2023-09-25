@@ -22,7 +22,7 @@ original_test_mm: $(OBJDIR) $(OBJS) ./obj/test_mm.o
 both: test_mm original_test_mm
 
 run_mpi: test_mm
-	rm -f MPI_mm.o* MPI_mm.e*
+	rm -f test_mm.o* test_mm.e*
 	sbatch MPI_script.sh
 
 run_debug: original_test_mm

@@ -13,11 +13,11 @@ OBJ= gen_matrix.o my_malloc.o
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 MPIOBJS = $(addprefix $(MPIOBJDIR), $(OBJ))
 
-test_mm: $(MPIOBJDIR) $(MPIOBJS) ./mpi_obj/test_mm.o
-	$(MPICC) $(MPIFLAGS) $(MPIOBJS) ./mpi_obj/test_mm.o -o test_mm
+test_mm: $(MPIOBJDIR) $(MPIOBJS) ./mpi_obj/MPI_mm.o
+	$(MPICC) $(MPIFLAGS) $(MPIOBJS) ./mpi_obj/MPI_mm.o -o test_mm
 
-original_test_mm: $(OBJDIR) $(OBJS) ./obj/original_test_mm.o
-	$(CC) $(CFLAGS) $(OBJS) ./obj/original_test_mm.o -o original_test_mm
+original_test_mm: $(OBJDIR) $(OBJS) ./obj/test_mm.o
+	$(CC) $(CFLAGS) $(OBJS) ./obj/test_mm.o -o original_test_mm
 
 both: test_mm original_test_mm
 

@@ -17,9 +17,9 @@
 #
 #----------------------------------------------------
 
-#SBATCH -J MPI_mm           # Job name
-#SBATCH -o MPI_mm.o%j       # Name of stdout output file
-#SBATCH -e MPI_mm.e%j       # Name of stderr error file
+#SBATCH -J test_mm           # Job name
+#SBATCH -o test_mm.o%j       # Name of stdout output file
+#SBATCH -e test_mm.e%j       # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
 #SBATCH -N 2               # Total # of nodes
 #SBATCH -n 4              # Total # of mpi tasks
@@ -30,4 +30,4 @@
 # Any other commands must follow all #SBATCH directives...
 
 # Launch MPI code...
-ibrun ./MPI_mm.x 0 0 8        # Use ibrun instead of mpirun or mpiexec
+ibrun ./test_mm 0 0 8        # Use ibrun instead of mpirun or mpiexec

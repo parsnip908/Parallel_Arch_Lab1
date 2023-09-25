@@ -185,19 +185,26 @@ int main(int argc, char** argv)
     //sum all
     else
     {
-        double sum = 0;
+        double local_sum = 0;
+        double global_sum = 0;
         for(i = 0; i < chunk_size; i++)
-            sum += result[i];
+            local_sum += result[i];
+        
+        MPI_Reduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        
         if(rank == 0)
-        {
-            double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes);
-            MPI_Gather(&sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            for (int i = 1; i < num_processes; i++)
-                sum += sub_sums[i];
-            printf("%f\n", sum);
-        }
-        else
-            MPI_Gather(&sum, 1, MPI_DOUBLE, NULL, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            printf("%f\n", global_sum);
+
+        // if(rank == 0)
+        // {
+        //     double* sub_sums = (double*) my_malloc(sizeof(double)*num_processes);
+        //     MPI_Gather(&sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        //     for (int i = 1; i < num_processes; i++)
+        //         sum += sub_sums[i];
+        //     printf("%f\n", sum);
+        // }
+        // else
+        //     MPI_Gather(&sum, 1, MPI_DOUBLE, NULL, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     }
 
     //free
